@@ -176,7 +176,7 @@ inline GSchurN::GSchurN(int N, int bmod = 64) {
   sbin_ = int2bin(N_ - 1, bmod_);
   nbin_ = sbin_.size();
   int gs_size = bmod_;
-  int gs_layer = log2(ceil((double)sbin_[nbin_ - 1] / bmod_));
+  int gs_layer = std::log2(ceil((double)sbin_[nbin_ - 1] / bmod_));
   gsb_ = new GSchur2K * [gs_layer + 1];
   gsb_[0] = new GSchur2K(2 * gs_size);
   for (int ii = 0; ii < gs_layer; ++ii) {
@@ -201,7 +201,7 @@ inline GSchurN::~GSchurN() {
   delete[] alpha_;
   delete[] beta_;
   // delete[] delta;
-  for (int ii = 0; ii <= log2(ceil((double)sbin_[nbin_ - 1] / bmod_)); ++ii) {
+  for (int ii = 0; ii <= std::log2(ceil((double)sbin_[nbin_ - 1] / bmod_)); ++ii) {
     delete gsb_[ii];
   }
   delete[] gsb_;
@@ -413,7 +413,7 @@ inline void GSchurN::recur_step(const double* alpha0, const double* beta0, int n
 /// The final output of the algorithm is stored in `gsm_[0]->eta2n`, `gsm_[0]->xi2n`, and `gsm_[0]->gamma`.
 inline void GSchurN::merge_step() {
   // calculate each piece of GSchur to a different layer of gsm_
-  int layer = log2(ceil((double)sbin_[0] / bmod_));
+  int layer = std::log2(ceil((double)sbin_[0] / bmod_));
   recur_step(alpha_, beta_, sbin_[0], layer);
   if (nbin_ == 1) {
     // When vector `sbin_` has only one element, directly pass the results to output.
@@ -443,7 +443,7 @@ inline void GSchurN::merge_step() {
     compute_nn(gsm_[mm], n_, sbin_[mm + 1]);
     // Computation of recur_step happens inside gsb_[0,1,...,layer].
     // We just need alphan [sbin_[mm]+(1:sbin_[mm+1])]
-    layer = log2(ceil((double)sbin_[mm + 1] / bmod_));
+    layer = std::log2(ceil((double)sbin_[mm + 1] / bmod_));
     recur_step(gsm_[mm]->alphan + n_, gsm_[mm]->betan + n_, sbin_[mm + 1], layer);
     std::copy(gsb_[layer]->eta2n, gsb_[layer]->eta2n + sbin_[mm + 1], gsm_[mm]->etan);
     std::fill(gsm_[mm]->etan + sbin_[mm + 1], gsm_[mm]->etan + n_ + sbin_[mm + 1], 0);
